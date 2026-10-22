@@ -8,6 +8,7 @@ and an Automation observability panel.
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 import flet as ft
@@ -104,10 +105,18 @@ class SciTreeDesktopUI:
         self.notice_message: str = ""
 
         self._configure_page()
+        self.file_picker = ft.FilePicker()
+        if hasattr(self.page, "services"):
+            self.page.services.append(self.file_picker)
+        elif hasattr(self.page, "overlay"):
+            self.page.overlay.append(self.file_picker)
+
         self.root_container = ft.Container(expand=True, bgcolor=BG_APP)
         self.page.add(self.root_container)
 
-        if not root_status.get("onboarding_completed") and not root_status.get("root_path"):
+        configured_root = root_status.get("root_path")
+        root_exists = bool(configured_root and Path(str(configured_root)).exists())
+        if not root_status.get("onboarding_completed") or not root_exists:
             self._render_onboarding_step1()
         else:
             self._reload_data_from_core()
@@ -187,14 +196,36 @@ class SciTreeDesktopUI:
     def _render_onboarding_step1(self) -> None:
         rec_path = str(get_recommended_root_path())
         custom_path_field = ft.TextField(
-            label="Custom Root Folder Path",
+            label="Root Folder Path",
             value=rec_path,
-            width=520,
+            width=410,
             border_color=BORDER_COLOR,
         )
 
-        def on_choose_folder(_: Any) -> None:
-            chosen = (custom_path_field.value or "").strip() or rec_path
+        async def on_browse_native(_: Any) -> None:
+            try:
+                picked = await self.file_picker.get_directory_path(
+                    dialog_title="Select sciTree Root Folder",
+                )
+                if picked:
+                    custom_path_field.value = picked
+                    self.page.update()
+            except Exception:
+                pass
+
+        async def on_choose_folder(_: Any) -> None:
+            current_val = (custom_path_field.value or "").strip()
+            if not current_val or current_val == rec_path:
+                try:
+                    picked = await self.file_picker.get_directory_path(
+                        dialog_title="Select sciTree Root Folder",
+                    )
+                    if picked:
+                        current_val = picked
+                        custom_path_field.value = picked
+                except Exception:
+                    pass
+            chosen = current_val or rec_path
             self.core.init_root(root_path=chosen, actor=self.actor)
             self.notice_message = f"Workspace initialized at: {chosen}"
             self._render_onboarding_step2()
@@ -213,7 +244,7 @@ class SciTreeDesktopUI:
             self._render_main_workspace()
 
         card = ft.Container(
-            width=620,
+            width=640,
             padding=32,
             bgcolor=BG_SURFACE,
             border=ft.Border.all(1, BORDER_COLOR),
@@ -222,9 +253,9 @@ class SciTreeDesktopUI:
                 tight=True,
                 spacing=18,
                 controls=[
-                    ft.Text("Welcome to sciTree", size=24, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY),
+                    ft.Text("Welcome to sciTree - First-Run Setup", size=22, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY),
                     ft.Text(
-                        "Select the root directory where your scientific projects, manuscript versions, "
+                        "Choose the root folder where all scientific projects, manuscript versions, "
                         "extracted figures, references, and automation logs will be stored locally.",
                         size=14,
                         color=TEXT_SECONDARY,
@@ -235,7 +266,13 @@ class SciTreeDesktopUI:
                         border_radius=8,
                         content=ft.Text(f"Recommended OS Location: {rec_path}", size=13, color=TEXT_PRIMARY),
                     ),
-                    custom_path_field,
+                    ft.Row(
+                        spacing=10,
+                        controls=[
+                            custom_path_field,
+                            ft.OutlinedButton("Browse...", on_click=on_browse_native),
+                        ],
+                    ),
                     ft.Row(
                         spacing=12,
                         controls=[

@@ -11,6 +11,7 @@ Demonstrates programmatic usage across:
 from __future__ import annotations
 
 import json
+import os
 import tempfile
 import zipfile
 from pathlib import Path
@@ -57,6 +58,7 @@ def _create_sample_assets(asset_dir: Path) -> dict[str, Path]:
 def main() -> None:
     with tempfile.TemporaryDirectory(prefix="scitree_agent_demo_") as tmp:
         tmp_path = Path(tmp)
+        os.environ["SCITREE_STATE_FILE"] = str(tmp_path / "bootstrap.json")
         workspace_root = tmp_path / "workspace"
         assets_dir = tmp_path / "assets"
         _create_sample_assets(assets_dir)
