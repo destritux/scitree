@@ -8,7 +8,6 @@ and an Automation observability panel.
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any
 
 import flet as ft
@@ -18,11 +17,8 @@ from scitree.core import SciTreeCore
 from scitree.errors import ERR_VERSION_CONFLICT, SciTreeError
 from scitree.models import (
     MILESTONE_PHASE_ORDER,
-    VALID_MILESTONE_PHASES,
-    VALID_MILESTONE_STATUSES,
     VALID_RISK_LIKELIHOODS,
     VALID_RISK_SEVERITIES,
-    VALID_RISK_STATUSES,
     validate_actor,
 )
 from scitree.templates import DEFAULT_COLUMNS
@@ -45,6 +41,32 @@ BADGE_RED_BG = "#FEE2E2"
 BADGE_RED_FG = "#991B1B"
 BADGE_PURPLE_BG = "#F3E8FF"
 BADGE_PURPLE_FG = "#6B21A8"
+
+
+def _make_dropdown(
+    label: str | None = None,
+    width: int | None = None,
+    value: str | None = None,
+    options: list[Any] | None = None,
+    on_select: Any = None,
+) -> ft.Dropdown:
+    """Create a Flet Dropdown compatible with both Flet 1.0+ (on_select) and 0.2x (on_change)."""
+    try:
+        return ft.Dropdown(
+            label=label,
+            width=width,
+            value=value,
+            options=options or [],
+            on_select=on_select,
+        )
+    except TypeError:
+        return ft.Dropdown(  # type: ignore[call-arg]
+            label=label,
+            width=width,
+            value=value,
+            options=options or [],
+            on_change=on_select,
+        )
 
 
 class SciTreeDesktopUI:
@@ -194,7 +216,7 @@ class SciTreeDesktopUI:
             width=620,
             padding=32,
             bgcolor=BG_SURFACE,
-            border=ft.border.all(1, BORDER_COLOR),
+            border=ft.Border.all(1, BORDER_COLOR),
             border_radius=12,
             content=ft.Column(
                 tight=True,
@@ -217,7 +239,7 @@ class SciTreeDesktopUI:
                     ft.Row(
                         spacing=12,
                         controls=[
-                            ft.ElevatedButton(
+                            ft.Button(
                                 "Choose folder",
                                 bgcolor=ACCENT_BLUE,
                                 color="#FFFFFF",
@@ -238,7 +260,7 @@ class SciTreeDesktopUI:
         )
         self.root_container.content = ft.Container(
             expand=True,
-            alignment=ft.alignment.Alignment(0, 0),
+            alignment=ft.Alignment(0, 0),
             content=card,
         )
         self.page.update()
@@ -255,12 +277,12 @@ class SciTreeDesktopUI:
         tpl_names = [t["name"] for t in self.templates_cache] or ["Empirical Paper", "Review Article", "Grant Proposal"]
         selected_tpl = {"name": tpl_names[0]}
 
-        tpl_dropdown = ft.Dropdown(
+        tpl_dropdown = _make_dropdown(
             label="Select Project Template",
             width=480,
             value=tpl_names[0],
             options=[ft.dropdown.Option(name) for name in tpl_names],
-            on_change=lambda e: selected_tpl.update({"name": e.control.value}),
+            on_select=lambda e: selected_tpl.update({"name": e.control.value}),
         )
 
         def on_create_from_template(_: Any) -> None:
@@ -283,7 +305,7 @@ class SciTreeDesktopUI:
             width=600,
             padding=32,
             bgcolor=BG_SURFACE,
-            border=ft.border.all(1, BORDER_COLOR),
+            border=ft.Border.all(1, BORDER_COLOR),
             border_radius=12,
             content=ft.Column(
                 tight=True,
@@ -301,7 +323,7 @@ class SciTreeDesktopUI:
                     ft.Row(
                         spacing=12,
                         controls=[
-                            ft.ElevatedButton(
+                            ft.Button(
                                 "Create Project with Template",
                                 bgcolor=ACCENT_BLUE,
                                 color="#FFFFFF",
@@ -315,7 +337,7 @@ class SciTreeDesktopUI:
         )
         self.root_container.content = ft.Container(
             expand=True,
-            alignment=ft.alignment.Alignment(0, 0),
+            alignment=ft.Alignment(0, 0),
             content=card,
         )
         self.page.update()
@@ -337,9 +359,9 @@ class SciTreeDesktopUI:
         if self.notice_message:
             controls.append(
                 ft.Container(
-                    padding=ft.padding.symmetric(horizontal=20, vertical=8),
+                    padding=ft.Padding.symmetric(horizontal=20, vertical=8),
                     bgcolor=ACCENT_BLUE_LIGHT,
-                    border=ft.border.only(bottom=ft.BorderSide(1, BORDER_COLOR)),
+                    border=ft.Border.only(bottom=ft.BorderSide(1, BORDER_COLOR)),
                     content=ft.Row(
                         alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                         controls=[
@@ -388,7 +410,7 @@ class SciTreeDesktopUI:
         def make_view_btn(label: str, key: str) -> ft.Control:
             is_active = self.current_view == key
             return ft.Container(
-                padding=ft.padding.symmetric(horizontal=14, vertical=6),
+                padding=ft.Padding.symmetric(horizontal=14, vertical=6),
                 bgcolor=ACCENT_BLUE if is_active else BG_SUBTLE,
                 border_radius=6,
                 on_click=lambda _: self._switch_view(key),
@@ -401,9 +423,9 @@ class SciTreeDesktopUI:
             )
 
         return ft.Container(
-            padding=ft.padding.symmetric(horizontal=24, vertical=14),
+            padding=ft.Padding.symmetric(horizontal=24, vertical=14),
             bgcolor=BG_SURFACE,
-            border=ft.border.only(bottom=ft.BorderSide(1, BORDER_COLOR)),
+            border=ft.Border.only(bottom=ft.BorderSide(1, BORDER_COLOR)),
             content=ft.Row(
                 alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                 controls=[
@@ -412,7 +434,7 @@ class SciTreeDesktopUI:
                         controls=[
                             ft.Text("sciTree", size=20, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY),
                             ft.Container(
-                                padding=ft.padding.symmetric(horizontal=10, vertical=4),
+                                padding=ft.Padding.symmetric(horizontal=10, vertical=4),
                                 bgcolor=BG_SUBTLE,
                                 border_radius=4,
                                 content=ft.Text(f"Root: {root_label}", size=11, color=TEXT_MUTED),
@@ -422,7 +444,7 @@ class SciTreeDesktopUI:
                     ft.Row(
                         spacing=10,
                         controls=[
-                            ft.ElevatedButton(
+                            ft.Button(
                                 "+ New Project",
                                 bgcolor=ACCENT_BLUE,
                                 color="#FFFFFF",
@@ -458,7 +480,7 @@ class SciTreeDesktopUI:
             value=self.search_query,
             width=260,
             height=38,
-            content_padding=ft.padding.symmetric(horizontal=10, vertical=6),
+            content_padding=ft.Padding.symmetric(horizontal=10, vertical=6),
             border_color=BORDER_COLOR,
             on_change=lambda e: self._update_search(e.control.value),
         )
@@ -467,9 +489,9 @@ class SciTreeDesktopUI:
         def make_owner_chip(label: str, val: str) -> ft.Control:
             active = self.owner_filter == val
             return ft.Container(
-                padding=ft.padding.symmetric(horizontal=12, vertical=5),
+                padding=ft.Padding.symmetric(horizontal=12, vertical=5),
                 bgcolor=ACCENT_BLUE if active else BG_SURFACE,
-                border=ft.border.all(1, ACCENT_BLUE if active else BORDER_COLOR),
+                border=ft.Border.all(1, ACCENT_BLUE if active else BORDER_COLOR),
                 border_radius=16,
                 on_click=lambda _: self._set_owner_filter(val),
                 content=ft.Text(
@@ -486,21 +508,21 @@ class SciTreeDesktopUI:
             on_change=lambda e: self._set_pending_filter(bool(e.control.value)),
         )
 
-        sort_dd = ft.Dropdown(
-            width=150,
+        sort_dd = _make_dropdown(
+            width=165,
             value=self.sort_by,
             options=[
                 ft.dropdown.Option("updated_at", "Sort: Updated"),
                 ft.dropdown.Option("name", "Sort: Name"),
                 ft.dropdown.Option("column", "Sort: Column"),
             ],
-            on_change=lambda e: self._set_sort_order(e.control.value or "updated_at"),
+            on_select=lambda e: self._set_sort_order(e.control.value or "updated_at"),
         )
 
         return ft.Container(
-            padding=ft.padding.symmetric(horizontal=24, vertical=10),
+            padding=ft.Padding.symmetric(horizontal=24, vertical=10),
             bgcolor=BG_SURFACE,
-            border=ft.border.only(bottom=ft.BorderSide(1, BORDER_COLOR)),
+            border=ft.Border.only(bottom=ft.BorderSide(1, BORDER_COLOR)),
             content=ft.Row(
                 alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
                 controls=[
@@ -579,7 +601,7 @@ class SciTreeDesktopUI:
                 width=290,
                 padding=14,
                 bgcolor=BG_SUBTLE,
-                border=ft.border.all(1, BORDER_COLOR),
+                border=ft.Border.all(1, BORDER_COLOR),
                 border_radius=10,
                 content=ft.Column(
                     spacing=10,
@@ -590,7 +612,7 @@ class SciTreeDesktopUI:
                             controls=[
                                 ft.Text(col_name, size=14, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY),
                                 ft.Container(
-                                    padding=ft.padding.symmetric(horizontal=8, vertical=2),
+                                    padding=ft.Padding.symmetric(horizontal=8, vertical=2),
                                     bgcolor=BG_SURFACE,
                                     border_radius=10,
                                     content=ft.Text(str(len(col_projects)), size=12, color=TEXT_SECONDARY),
@@ -657,7 +679,7 @@ class SciTreeDesktopUI:
 
         badges_row: list[ft.Control] = [
             ft.Container(
-                padding=ft.padding.symmetric(horizontal=8, vertical=3),
+                padding=ft.Padding.symmetric(horizontal=8, vertical=3),
                 bgcolor=BADGE_GREEN_BG if is_locked else ACCENT_BLUE_LIGHT,
                 border_radius=4,
                 content=ft.Text(
@@ -668,7 +690,7 @@ class SciTreeDesktopUI:
                 ),
             ),
             ft.Container(
-                padding=ft.padding.symmetric(horizontal=6, vertical=3),
+                padding=ft.Padding.symmetric(horizontal=6, vertical=3),
                 bgcolor=BG_SUBTLE,
                 border_radius=4,
                 content=ft.Text(f"Owner: {owner_type}", size=10, color=TEXT_SECONDARY),
@@ -680,7 +702,7 @@ class SciTreeDesktopUI:
         if pending_comments > 0:
             indicators.append(
                 ft.Container(
-                    padding=ft.padding.symmetric(horizontal=7, vertical=2),
+                    padding=ft.Padding.symmetric(horizontal=7, vertical=2),
                     bgcolor=BADGE_AMBER_BG,
                     border_radius=4,
                     content=ft.Text(f"Comments: {pending_comments}", size=11, color=BADGE_AMBER_FG),
@@ -689,7 +711,7 @@ class SciTreeDesktopUI:
         if high_crit_risks > 0:
             indicators.append(
                 ft.Container(
-                    padding=ft.padding.symmetric(horizontal=7, vertical=2),
+                    padding=ft.Padding.symmetric(horizontal=7, vertical=2),
                     bgcolor=BADGE_RED_BG,
                     border_radius=4,
                     content=ft.Text(f"High/Crit Risks: {high_crit_risks}", size=11, color=BADGE_RED_FG),
@@ -698,7 +720,7 @@ class SciTreeDesktopUI:
         if next_due:
             indicators.append(
                 ft.Container(
-                    padding=ft.padding.symmetric(horizontal=7, vertical=2),
+                    padding=ft.Padding.symmetric(horizontal=7, vertical=2),
                     bgcolor=BADGE_PURPLE_BG,
                     border_radius=4,
                     content=ft.Text(f"Next Due: {next_due}", size=11, color=BADGE_PURPLE_FG),
@@ -726,16 +748,16 @@ class SciTreeDesktopUI:
             )
 
         is_selected = self.selected_project_name == pname
-        card_Visual = ft.Container(
+        card_visual = ft.Container(
             width=262,
             padding=14,
             bgcolor=BG_SURFACE,
-            border=ft.border.all(2 if is_selected else 1, ACCENT_BLUE if is_selected else BORDER_COLOR),
+            border=ft.Border.all(2 if is_selected else 1, ACCENT_BLUE if is_selected else BORDER_COLOR),
             border_radius=8,
             on_click=lambda _, pn=pname: self._select_project(pn),
             content=ft.Column(
                 spacing=8,
-                cross_alignment=ft.CrossAxisAlignment.START,
+                horizontal_alignment=ft.CrossAxisAlignment.START,
                 controls=[
                     ft.Text(pname, size=15, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY),
                     ft.Row(wrap=True, spacing=6, run_spacing=4, controls=badges_row),
@@ -749,12 +771,12 @@ class SciTreeDesktopUI:
         return ft.Draggable(
             group="kanban_cards",
             data=pname,
-            content=card_Visual,
+            content=card_visual,
             content_feedback=ft.Container(
                 width=240,
                 padding=10,
                 bgcolor=ACCENT_BLUE_LIGHT,
-                border=ft.border.all(1, ACCENT_BLUE),
+                border=ft.Border.all(1, ACCENT_BLUE),
                 border_radius=8,
                 content=ft.Text(pname, size=13, weight=ft.FontWeight.BOLD, color=ACCENT_BLUE),
             ),
@@ -806,7 +828,7 @@ class SciTreeDesktopUI:
             )
 
         table = ft.DataTable(
-            border=ft.border.all(1, BORDER_COLOR),
+            border=ft.Border.all(1, BORDER_COLOR),
             border_radius=8,
             heading_row_color=BG_SUBTLE,
             columns=[
@@ -845,12 +867,12 @@ class SciTreeDesktopUI:
                 content=ft.Text("No project available to display Timeline / Route View.", size=14, color=TEXT_MUTED),
             )
 
-        proj_selector = ft.Dropdown(
+        proj_selector = _make_dropdown(
             label="Project Timeline",
             width=280,
             value=target_name,
             options=[ft.dropdown.Option(p["name"]) for p in self.projects_cache],
-            on_change=lambda e: self._select_project(e.control.value or target_name),
+            on_select=lambda e: self._select_project(e.control.value or target_name),
         )
         note_input = ft.TextField(
             hint_text="Add a manual note to this project's timeline...",
@@ -880,7 +902,7 @@ class SciTreeDesktopUI:
                     ft.Container(
                         padding=10,
                         bgcolor=BG_SURFACE,
-                        border=ft.border.all(1, BORDER_COLOR),
+                        border=ft.Border.all(1, BORDER_COLOR),
                         border_radius=6,
                         content=ft.Row(
                             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
@@ -941,7 +963,7 @@ class SciTreeDesktopUI:
                         controls=[
                             proj_selector,
                             note_input,
-                            ft.ElevatedButton("Add Note", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=on_add_note),
+                            ft.Button("Add Note", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=on_add_note),
                         ],
                     ),
                     *day_groups,
@@ -965,7 +987,7 @@ class SciTreeDesktopUI:
         def tab_btn(label: str, key: str) -> ft.Control:
             active = self.active_drawer_tab == key
             return ft.Container(
-                padding=ft.padding.symmetric(horizontal=10, vertical=6),
+                padding=ft.Padding.symmetric(horizontal=10, vertical=6),
                 bgcolor=ACCENT_BLUE if active else BG_SUBTLE,
                 border_radius=6,
                 on_click=lambda _: switch_tab(key),
@@ -1000,7 +1022,7 @@ class SciTreeDesktopUI:
             width=460,
             padding=18,
             bgcolor=BG_SURFACE,
-            border=ft.border.only(left=ft.BorderSide(1, BORDER_COLOR)),
+            border=ft.Border.only(left=ft.BorderSide(1, BORDER_COLOR)),
             content=ft.Column(
                 expand=True,
                 spacing=12,
@@ -1018,7 +1040,7 @@ class SciTreeDesktopUI:
                         wrap=True,
                         spacing=8,
                         controls=[
-                            ft.ElevatedButton(
+                            ft.Button(
                                 "Export Package",
                                 bgcolor=ACCENT_BLUE,
                                 color="#FFFFFF",
@@ -1087,7 +1109,7 @@ class SciTreeDesktopUI:
                     sug = exc.details.get("suggested_version_id", "v2a")
                     conflict_banner.controls = [
                         ft.Text(f"Warning: {exc.message}", size=12, color=BADGE_RED_FG),
-                        ft.ElevatedButton(
+                        ft.Button(
                             f"Use Suggested Suffix '{sug}'",
                             on_click=lambda _: submit_version(sug),
                         ),
@@ -1125,11 +1147,11 @@ class SciTreeDesktopUI:
                 ft.Container(
                     padding=10,
                     bgcolor=ACCENT_BLUE_LIGHT if is_latest else BG_SUBTLE,
-                    border=ft.border.all(1, ACCENT_BLUE if is_latest else BORDER_COLOR),
+                    border=ft.Border.all(1, ACCENT_BLUE if is_latest else BORDER_COLOR),
                     border_radius=6,
                     content=ft.Column(
                         spacing=4,
-                        cross_alignment=ft.CrossAxisAlignment.START,
+                        horizontal_alignment=ft.CrossAxisAlignment.START,
                         controls=[
                             ft.Text(
                                 f"{vid} ({v.get('state')}){latest_str}{lock_str}",
@@ -1159,7 +1181,7 @@ class SciTreeDesktopUI:
                 ft.Row(spacing=10, controls=[vid_input, author_input]),
                 changelog_input,
                 conflict_banner,
-                ft.ElevatedButton("Upload Version", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=lambda _: submit_version()),
+                ft.Button("Upload Version", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=lambda _: submit_version()),
                 ft.Divider(height=1, color=BORDER_COLOR),
                 ft.Text(f"Version History ({len(versions)})", size=14, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY),
                 *ver_items,
@@ -1217,7 +1239,7 @@ class SciTreeDesktopUI:
             spacing=10,
             controls=[
                 text_input,
-                ft.ElevatedButton("Add Comment", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=on_add_cmt),
+                ft.Button("Add Comment", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=on_add_cmt),
                 ft.Text(f"Comments ({len(comments)})", size=14, weight=ft.FontWeight.BOLD, color=TEXT_PRIMARY),
                 *cmt_controls,
             ],
@@ -1233,13 +1255,13 @@ class SciTreeDesktopUI:
         risks = proj.get("risks", [])
         title_in = ft.TextField(label="Risk Title", width=410, border_color=BORDER_COLOR)
         desc_in = ft.TextField(label="Description / Mitigation", width=410, border_color=BORDER_COLOR)
-        sev_dd = ft.Dropdown(
+        sev_dd = _make_dropdown(
             label="Severity",
             width=195,
             value="high",
             options=[ft.dropdown.Option(s) for s in sorted(VALID_RISK_SEVERITIES)],
         )
-        lik_dd = ft.Dropdown(
+        lik_dd = _make_dropdown(
             label="Likelihood",
             width=195,
             value="medium",
@@ -1271,7 +1293,7 @@ class SciTreeDesktopUI:
                     border_radius=6,
                     content=ft.Column(
                         spacing=4,
-                        cross_alignment=ft.CrossAxisAlignment.START,
+                        horizontal_alignment=ft.CrossAxisAlignment.START,
                         controls=[
                             ft.Row(
                                 alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
@@ -1300,7 +1322,7 @@ class SciTreeDesktopUI:
                 title_in,
                 desc_in,
                 ft.Row(spacing=10, controls=[sev_dd, lik_dd]),
-                ft.ElevatedButton("Add Risk", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=on_add_risk),
+                ft.Button("Add Risk", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=on_add_risk),
                 ft.Text(f"Project Risks ({len(risks)})", size=14, weight=ft.FontWeight.BOLD),
                 *r_cards,
             ],
@@ -1316,7 +1338,7 @@ class SciTreeDesktopUI:
         milestones = proj.get("milestones", [])
         title_in = ft.TextField(label="Milestone Title", width=410, border_color=BORDER_COLOR)
         due_in = ft.TextField(label="Due Date (YYYY-MM-DD)", value="2026-11-15", width=195, border_color=BORDER_COLOR)
-        phase_dd = ft.Dropdown(
+        phase_dd = _make_dropdown(
             label="Phase",
             width=205,
             value="short_term_7d",
@@ -1372,7 +1394,7 @@ class SciTreeDesktopUI:
             controls=[
                 title_in,
                 ft.Row(spacing=10, controls=[phase_dd, due_in]),
-                ft.ElevatedButton("Add Milestone", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=on_add_ms),
+                ft.Button("Add Milestone", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=on_add_ms),
                 ft.Text(f"Milestones ({len(milestones)})", size=14, weight=ft.FontWeight.BOLD),
                 *ms_cards,
             ],
@@ -1392,7 +1414,7 @@ class SciTreeDesktopUI:
         )
         events = list(reversed(act.get("events", [])))
 
-        atype_dd = ft.Dropdown(
+        atype_dd = _make_dropdown(
             label="Actor Type",
             width=190,
             value=self.act_actor_type,
@@ -1401,9 +1423,9 @@ class SciTreeDesktopUI:
                 ft.dropdown.Option("human", "Human"),
                 ft.dropdown.Option("agent", "Agent"),
             ],
-            on_change=lambda e: self._set_act_filters(e.control.value or "all", self.act_actor_source),
+            on_select=lambda e: self._set_act_filters(e.control.value or "all", self.act_actor_source),
         )
-        asrc_dd = ft.Dropdown(
+        asrc_dd = _make_dropdown(
             label="Source",
             width=190,
             value=self.act_actor_source,
@@ -1415,7 +1437,7 @@ class SciTreeDesktopUI:
                 ft.dropdown.Option("mcp", "MCP"),
                 ft.dropdown.Option("manifest", "Manifest"),
             ],
-            on_change=lambda e: self._set_act_filters(self.act_actor_type, e.control.value or "all"),
+            on_select=lambda e: self._set_act_filters(self.act_actor_type, e.control.value or "all"),
         )
 
         ev_rows: list[ft.Control] = []
@@ -1428,7 +1450,7 @@ class SciTreeDesktopUI:
                     border_radius=6,
                     content=ft.Column(
                         spacing=2,
-                        cross_alignment=ft.CrossAxisAlignment.START,
+                        horizontal_alignment=ft.CrossAxisAlignment.START,
                         controls=[
                             ft.Text(
                                 f"[{ev.get('timestamp')}] {ev.get('event_type')}",
@@ -1481,7 +1503,7 @@ class SciTreeDesktopUI:
                 border_radius=6,
                 content=ft.Column(
                     spacing=2,
-                    cross_alignment=ft.CrossAxisAlignment.START,
+                    horizontal_alignment=ft.CrossAxisAlignment.START,
                     controls=[
                         ft.Text(f"[{lg.get('timestamp')}] {lg.get('operation')}", size=11, weight=ft.FontWeight.BOLD),
                         ft.Text(
@@ -1499,7 +1521,7 @@ class SciTreeDesktopUI:
             width=360,
             padding=18,
             bgcolor=BG_SURFACE,
-            border=ft.border.only(left=ft.BorderSide(1, BORDER_COLOR)),
+            border=ft.Border.only(left=ft.BorderSide(1, BORDER_COLOR)),
             content=ft.Column(
                 expand=True,
                 spacing=10,
@@ -1512,7 +1534,7 @@ class SciTreeDesktopUI:
                         border_radius=6,
                         content=ft.Column(
                             spacing=4,
-                            cross_alignment=ft.CrossAxisAlignment.START,
+                            horizontal_alignment=ft.CrossAxisAlignment.START,
                             controls=[
                                 ft.Text("Interfaces Ready:", size=12, weight=ft.FontWeight.BOLD),
                                 ft.Text("CLI: scitree", size=11, color=TEXT_SECONDARY),
@@ -1521,7 +1543,7 @@ class SciTreeDesktopUI:
                             ],
                         ),
                     ),
-                    ft.ElevatedButton(
+                    ft.Button(
                         "Process Automation/inbox Now",
                         bgcolor=ACCENT_BLUE,
                         color="#FFFFFF",
@@ -1546,7 +1568,7 @@ class SciTreeDesktopUI:
         name_in = ft.TextField(label="Project Name", width=400)
         desc_in = ft.TextField(label="Description", width=400)
         tpl_names = [t["name"] for t in self.templates_cache] or ["Default", "Empirical Paper"]
-        tpl_dd = ft.Dropdown(
+        tpl_dd = _make_dropdown(
             label="Template",
             width=400,
             value=tpl_names[0],
@@ -1562,7 +1584,7 @@ class SciTreeDesktopUI:
                     template_name=tpl_dd.value,
                     actor=self.actor,
                 )
-                dlg.open = False
+                self._close_dialog(dlg)
                 self._reload_data_from_core()
                 self.selected_project_name = pname
                 self._render_main_workspace()
@@ -1572,14 +1594,14 @@ class SciTreeDesktopUI:
             content=ft.Column(tight=True, spacing=12, controls=[name_in, desc_in, tpl_dd]),
             actions=[
                 ft.TextButton("Cancel", on_click=lambda _: self._close_dialog(dlg)),
-                ft.ElevatedButton("Create", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=on_create),
+                ft.Button("Create", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=on_create),
             ],
         )
         self._show_dialog(dlg)
 
     def _open_add_file_modal(self, project_name: str) -> None:
         path_in = ft.TextField(label="File Path", width=400)
-        kind_dd = ft.Dropdown(
+        kind_dd = _make_dropdown(
             label="File Kind",
             width=400,
             value="data",
@@ -1598,7 +1620,7 @@ class SciTreeDesktopUI:
                     kind=kind_dd.value or "data",
                     actor=self.actor,
                 )
-                dlg.open = False
+                self._close_dialog(dlg)
                 self._reload_data_from_core()
                 self._set_notice(f"Added file to {project_name}.")
             except SciTreeError as exc:
@@ -1609,7 +1631,7 @@ class SciTreeDesktopUI:
             content=ft.Column(tight=True, spacing=12, controls=[path_in, kind_dd]),
             actions=[
                 ft.TextButton("Cancel", on_click=lambda _: self._close_dialog(dlg)),
-                ft.ElevatedButton("Upload", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=on_submit),
+                ft.Button("Upload", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=on_submit),
             ],
         )
         self._show_dialog(dlg)
@@ -1630,7 +1652,7 @@ class SciTreeDesktopUI:
                     actor=self.actor,
                 )
                 res = self.core.zotero_sync(project_name=pname, strict=False, actor=self.actor)
-                dlg.open = False
+                self._close_dialog(dlg)
                 self._reload_data_from_core()
                 self._set_notice(f"Zotero sync status: {res.get('status')}")
 
@@ -1639,7 +1661,7 @@ class SciTreeDesktopUI:
             content=ft.Column(tight=True, spacing=12, controls=[key_in, cname_in]),
             actions=[
                 ft.TextButton("Cancel", on_click=lambda _: self._close_dialog(dlg)),
-                ft.ElevatedButton("Link & Sync", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=on_link_and_sync),
+                ft.Button("Link & Sync", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=on_link_and_sync),
             ],
         )
         self._show_dialog(dlg)
@@ -1657,7 +1679,7 @@ class SciTreeDesktopUI:
                     description=(tdesc_in.value or "").strip() or None,
                     actor=self.actor,
                 )
-                dlg.open = False
+                self._close_dialog(dlg)
                 self._reload_data_from_core()
                 self._set_notice(f"Saved template '{val}'.")
 
@@ -1666,7 +1688,7 @@ class SciTreeDesktopUI:
             content=ft.Column(tight=True, spacing=12, controls=[tname_in, tdesc_in]),
             actions=[
                 ft.TextButton("Cancel", on_click=lambda _: self._close_dialog(dlg)),
-                ft.ElevatedButton("Save Template", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=on_save),
+                ft.Button("Save Template", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=on_save),
             ],
         )
         self._show_dialog(dlg)
@@ -1679,13 +1701,13 @@ class SciTreeDesktopUI:
             val = (root_in.value or "").strip()
             if val:
                 self.core.init_root(root_path=val, actor=self.actor)
-                dlg.open = False
+                self._close_dialog(dlg)
                 self._reload_data_from_core()
                 self._set_notice(f"Switched root folder to: {val}")
 
         def on_reset_onboarding(_: Any) -> None:
             self.core.reset_onboarding(actor=self.actor)
-            dlg.open = False
+            self._close_dialog(dlg)
             self._render_onboarding_step1()
 
         dlg = ft.AlertDialog(
@@ -1701,13 +1723,15 @@ class SciTreeDesktopUI:
             actions=[
                 ft.TextButton("Reset Onboarding", on_click=on_reset_onboarding),
                 ft.TextButton("Cancel", on_click=lambda _: self._close_dialog(dlg)),
-                ft.ElevatedButton("Apply Root Path", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=on_change_root),
+                ft.Button("Apply Root Path", bgcolor=ACCENT_BLUE, color="#FFFFFF", on_click=on_change_root),
             ],
         )
         self._show_dialog(dlg)
 
     def _show_dialog(self, dlg: ft.AlertDialog) -> None:
-        if hasattr(self.page, "open"):
+        if hasattr(self.page, "show_dialog"):
+            self.page.show_dialog(dlg)
+        elif hasattr(self.page, "open"):
             self.page.open(dlg)
         else:
             self.page.dialog = dlg
@@ -1715,7 +1739,9 @@ class SciTreeDesktopUI:
             self.page.update()
 
     def _close_dialog(self, dlg: ft.AlertDialog) -> None:
-        if hasattr(self.page, "close"):
+        if hasattr(self.page, "pop_dialog"):
+            self.page.pop_dialog()
+        elif hasattr(self.page, "close"):
             self.page.close(dlg)
         else:
             dlg.open = False
