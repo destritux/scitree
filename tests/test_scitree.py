@@ -24,6 +24,7 @@ from scitree.errors import (
     ERR_ROOT_NOT_CONFIGURED,
     ERR_TEMPLATE_NOT_FOUND,
     ERR_UNAUTHORIZED,
+    ERR_VALIDATION_ERROR,
     ERR_VERSION_CONFLICT,
     ERR_VERSION_IMMUTABLE,
     SciTreeError,
@@ -388,3 +389,35 @@ def test_cli_http_mcp_manifest_and_inbox(workspace_env: dict[str, Path]) -> None
     assert r_inbox.json()["processed_count"] == 1
     outbox_result = workspace_env["root"] / "Automation" / "outbox" / "job1.json.result.json"
     assert outbox_result.is_file()
+
+
+def test_security_hardening(workspace_env: dict[str, Path]) -> None:
+    core = SciTreeCore(root_path=workspace_env["root"])
+    core.init_root(root_path=workspace_env["root"])
+    core.create_project(name="Security Study")
+
+    # 1. bootstrap.json has 0o600 permissions on POSIX
+    mode = workspace_env["state_file"].stat().st_mode & 0o777
+    assert mode == 0o600
+
+    # 2. get_root_status() redacts raw api_token
+    status = core.get_root_status()
+    assert "api_token" not in status
+    assert status["api_token_configured"] is True
+
+    # 3. Path traversal in version_id is rejected
+    with pytest.raises(SciTreeError) as exc_info:
+        core.add_version(
+            project_name="Security Study",
+            file_path=workspace_env["docx_v1"],
+            author="Jane Doe",
+            version_id="../traversal",
+        )
+    assert exc_info.value.code == ERR_VALIDATION_ERROR
+
+    # 4. Path traversal in Zotero collection_key is rejected
+    core.zotero_link(project_name="Security Study", collection_key="../../etc/passwd")
+    with pytest.raises(SciTreeError) as z_exc:
+        core.zotero_sync(project_name="Security Study", strict=True)
+    assert z_exc.value.code == ERR_VALIDATION_ERROR
+

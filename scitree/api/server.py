@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import secrets
 from typing import Any
 
 import uvicorn
@@ -183,10 +184,10 @@ def create_app(
         is_loopback = client_host in {"127.0.0.1", "::1", "localhost", "testclient"}
         if not is_loopback:
             state = mgr.load()
-            expected_token = state.get("api_token")
+            expected_token = str(state.get("api_token") or "")
             auth_header = request.headers.get("Authorization", "")
             token = auth_header.removeprefix("Bearer ").strip() if auth_header.startswith("Bearer ") else ""
-            if not expected_token or token != expected_token:
+            if not expected_token or not token or not secrets.compare_digest(token, expected_token):
                 err = SciTreeError(
                     ERR_UNAUTHORIZED,
                     "Non-loopback requests require a valid Bearer token from sciTree settings.",

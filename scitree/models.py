@@ -91,6 +91,25 @@ def safe_folder_name(name: str) -> str:
     return cleaned or "Project"
 
 
+def validate_safe_path_segment(value: str, field_name: str = "identifier") -> str:
+    """Ensure a user- or agent-supplied segment cannot traverse directories."""
+    cleaned = (value or "").strip()
+    if (
+        not cleaned
+        or ".." in cleaned
+        or "/" in cleaned
+        or "\\" in cleaned
+        or "\x00" in cleaned
+        or cleaned.startswith(".")
+    ):
+        raise SciTreeError(
+            ERR_VALIDATION_ERROR,
+            f"Invalid {field_name} '{value}': path traversal or unsafe characters are not allowed.",
+            {field_name: value},
+        )
+    return cleaned
+
+
 def compute_sha256(path: Path) -> str:
     """Compute SHA-256 hex digest with 'sha256:' prefix for a file."""
     hasher = hashlib.sha256()

@@ -178,9 +178,11 @@ def _extract_from_docx(
                 target.write_bytes(zf.read(member))
                 figures_extracted += 1
 
-            # Check for Word native comments in word/comments.xml
+            # Check for Word native comments in word/comments.xml (reject DTD/ENTITY declarations for XXE safety)
             if "word/comments.xml" in names:
                 xml_bytes = zf.read("word/comments.xml")
+                if b"<!ENTITY" in xml_bytes.upper() or b"<!DOCTYPE" in xml_bytes.upper():
+                    raise ValueError("Refusing to parse word/comments.xml containing DTD/ENTITY declarations.")
                 root = ET.fromstring(xml_bytes)
                 ns = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
                 for c_elem in root.findall(".//w:comment", ns):

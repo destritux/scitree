@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 from typing import Any
 
@@ -10,10 +11,11 @@ import bibtexparser
 import httpx
 from bibtexparser.model import Entry, Field
 
-from scitree.errors import ERR_ZOTERO_UNAVAILABLE, SciTreeError
+from scitree.errors import ERR_VALIDATION_ERROR, ERR_ZOTERO_UNAVAILABLE, SciTreeError
 from scitree.models import utc_now_iso
 
 DEFAULT_ZOTERO_BASE_URL = "http://127.0.0.1:23119/api"
+COLLECTION_KEY_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
 
 
 def get_zotero_base_url() -> str:
@@ -38,6 +40,12 @@ def sync_zotero_collection(
             ERR_ZOTERO_UNAVAILABLE,
             "Project is not linked to a Zotero collection.",
             {"linked": False},
+        )
+    if not COLLECTION_KEY_RE.match(collection_key):
+        raise SciTreeError(
+            ERR_VALIDATION_ERROR,
+            f"Invalid Zotero collection_key '{collection_key}'.",
+            {"collection_key": collection_key},
         )
 
     base_url = get_zotero_base_url()

@@ -2,24 +2,58 @@
 .venv/
 venv/
 env/
+ENV/
 
-# Python bytecode and packaging
+# Python bytecode, caches, and packaging artifacts
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
 *.egg-info/
 .eggs/
 build/
 dist/
 *.spec
+.flet/
 
-# Test and tool caches
+# Testing, linting, and coverage caches
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 .coverage
+htmlcov/
 
-# Local runtime databases and OS files
+# Environment variables, secrets, keys, and local bootstrap state
+.env
+.env.*
+*.pem
+*.key
+*.crt
+*secret*
+*credentials*
+bootstrap.json
+
+# Local specification prompts and workspace runtime data
+prompt.md
+metadata.json
+activity_log.jsonl
 *.db
 *.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+*.log
+Projects/
+Exports/
+Automation/
+Templates/
+
+# IDE and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
+Thumbs.db

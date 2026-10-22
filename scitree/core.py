@@ -47,6 +47,7 @@ from scitree.models import (
     slugify,
     utc_now_iso,
     validate_actor,
+    validate_safe_path_segment,
     wrap_response,
 )
 from scitree.templates import (
@@ -116,7 +117,7 @@ class SciTreeCore:
                 "onboarding_completed": bool(state.get("onboarding_completed", False)),
                 "root_path": str(effective) if effective else None,
                 "recommended_root": str(get_recommended_root_path()),
-                "api_token": state.get("api_token"),
+                "api_token_configured": bool(state.get("api_token")),
                 "ui_state": state.get("ui_state", {"last_view": "board"}),
             }
         )
@@ -627,6 +628,10 @@ class SciTreeCore:
                 actor=actor_info,
             )
 
+        custom_folders = [
+            validate_safe_path_segment(str(f), "template_folder")
+            for f in tpl.get("folders", [])
+        ]
         for sub in [
             "Versions",
             "Figures_Text",
@@ -634,7 +639,7 @@ class SciTreeCore:
             "Data",
             "References",
             "Automation",
-        ] + list(tpl.get("folders", [])):
+        ] + custom_folders:
             (project_dir / sub).mkdir(parents=True, exist_ok=True)
 
         self._append_project_event(
@@ -868,7 +873,7 @@ class SciTreeCore:
 
         # Determine version_id or check conflict/idempotency
         if version_id:
-            target_vid = version_id.strip()
+            target_vid = validate_safe_path_segment(version_id, "version_id")
             if target_vid in existing_by_id:
                 existing_v = existing_by_id[target_vid]
                 if existing_v.get("immutable"):
@@ -2211,9 +2216,10 @@ class SciTreeCore:
                 added_risks.append(t_str)
 
         for folder_name in tpl.get("folders", []):
-            f_path = pdir / folder_name
+            safe_sub = validate_safe_path_segment(str(folder_name), "template_folder")
+            f_path = pdir / safe_sub
             if not f_path.exists():
-                added_folders.append(folder_name)
+                added_folders.append(safe_sub)
                 if not dry_run:
                     f_path.mkdir(parents=True, exist_ok=True)
 

@@ -1732,6 +1732,7 @@ class SciTreeDesktopUI:
 
     def _open_settings_modal(self) -> None:
         status = self.core.get_root_status()
+        local_token = self.core.state_manager.load().get("api_token")
         root_in = ft.TextField(label="Root Folder Path", value=status.get("root_path") or "", width=440)
 
         def on_change_root(_: Any) -> None:
@@ -1754,7 +1755,7 @@ class SciTreeDesktopUI:
                 spacing=12,
                 controls=[
                     root_in,
-                    ft.Text(f"Non-loopback API Token: {status.get('api_token')}", size=11, color=TEXT_MUTED),
+                    ft.Text(f"Non-loopback API Token: {local_token}", size=11, color=TEXT_MUTED),
                 ],
             ),
             actions=[

@@ -116,6 +116,10 @@ class BootstrapStateManager:
         }
         self.state_file.parent.mkdir(parents=True, exist_ok=True)
         self.state_file.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        try:
+            os.chmod(self.state_file, 0o600)
+        except OSError:
+            pass
         return payload
 
     def update_ui_state(self, **kwargs: Any) -> dict[str, Any]:
@@ -139,4 +143,8 @@ class BootstrapStateManager:
         }
         self.state_file.parent.mkdir(parents=True, exist_ok=True)
         self.state_file.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        try:
+            os.chmod(self.state_file, 0o600)
+        except OSError:
+            pass
         return payload
