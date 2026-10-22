@@ -1,0 +1,228 @@
+{
+  "schema_version": "1.0",
+  "project_id": "prj_01HQ8Z3K4M9X2V7B6N5C4D3E2F",
+  "name": "Alpha Study",
+  "slug": "alpha-study",
+  "description": "Longitudinal study on sleep quality and cognitive performance in graduate students.",
+  "template": {
+    "name": "Empirical Paper",
+    "version": "1.0",
+    "applied_at": "2025-03-10T09:15:00Z"
+  },
+  "status": {
+    "column": "Writing",
+    "column_order": ["Idea", "Literature", "Data", "Analysis", "Writing", "Submitted", "Published"],
+    "owner_type": "human",
+    "owner_name": "Jane Doe"
+  },
+  "authors": [
+    { "name": "Jane Doe",     "role": "corresponding", "email": "jane@example.org", "orcid": "0000-0002-1825-0097" },
+    { "name": "John Smith",   "role": "co-author" },
+    { "name": "Maria Silva",  "role": "co-author" }
+  ],
+  "created_at": "2025-03-10T09:15:00Z",
+  "updated_at": "2025-03-14T10:22:31Z",
+  "created_by": { "actor_name": "Jane Doe", "actor_type": "human", "actor_source": "ui" },
+
+  "versions": [
+    {
+      "version_id": "v1",
+      "state": "draft",
+      "immutable": false,
+      "author": "Jane Doe",
+      "changelog": "First full draft.",
+      "created_at": "2025-03-11T14:02:10Z",
+      "created_by": { "actor_name": "Jane Doe", "actor_type": "human", "actor_source": "ui" },
+      "files": {
+        "manuscript": "Versions/v1/manuscript.docx",
+        "figures_dir": "Figures_Text/v1/",
+        "bib": "References/v1.bib"
+      },
+      "extraction": {
+        "status": "success",
+        "figures_extracted": 4,
+        "references_parsed": 27,
+        "warnings": []
+      },
+      "comments_count": { "pending": 3, "resolved": 0 }
+    },
+    {
+      "version_id": "v2",
+      "state": "submitted",
+      "immutable": true,
+      "derived_from": "v1",
+      "author": "Jane Doe",
+      "changelog": "Addressed reviewer feedback on methods section.",
+      "submitted_to": "Journal of Sleep Research",
+      "submitted_at": "2025-03-14T10:20:00Z",
+      "created_at": "2025-03-14T09:45:12Z",
+      "created_by": { "actor_name": "Jane Doe", "actor_type": "human", "actor_source": "ui" },
+      "locked_at": "2025-03-14T10:20:00Z",
+      "locked_by": { "actor_name": "Jane Doe", "actor_type": "human", "actor_source": "ui" },
+      "files": {
+        "manuscript": "Versions/v2/manuscript.pdf",
+        "figures_dir": "Figures_Text/v2/",
+        "bib": "References/v2.bib"
+      },
+      "extraction": {
+        "status": "success",
+        "figures_extracted": 5,
+        "references_parsed": 31,
+        "warnings": ["Figure 3 caption truncated; check manual review."]
+      },
+      "checksums": {
+        "manuscript": "sha256:9f2b7c1d4e6a8b3f5c0d9e2a1b4f7c8d6e5a3b2c1d0e9f8a7b6c5d4e3f2a1b0c",
+        "bib": "sha256:1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b"
+      },
+      "comments_count": { "pending": 2, "resolved": 5 }
+    }
+  ],
+  "latest_version_id": "v2",
+  "latest_version_locked": true,
+
+  "files": {
+    "data": [
+      { "file_id": "f_d1", "path": "Data/raw_sleep_2025_q1.csv", "size_bytes": 48213,
+        "added_at": "2025-03-11T10:00:00Z",
+        "added_by": { "actor_name": "Jane Doe", "actor_type": "human", "actor_source": "ui" } },
+      { "file_id": "f_d2", "path": "Data/survey_responses.xlsx", "size_bytes": 918273,
+        "added_at": "2025-03-11T10:05:00Z",
+        "added_by": { "actor_name": "Jane Doe", "actor_type": "human", "actor_source": "ui" } }
+    ],
+    "figures_standalone": [
+      { "file_id": "f_f1", "path": "Figures_Standalone/conceptual_model.png",
+        "added_at": "2025-03-11T10:12:00Z",
+        "added_by": { "actor_name": "Jane Doe", "actor_type": "human", "actor_source": "ui" } }
+    ]
+  },
+
+  "comments": [
+    {
+      "comment_id": "cmt_001",
+      "text": "Clarify inclusion criteria in the methods section.",
+      "version": "v2",
+      "owner_type": "human",
+      "owner_name": "John Smith",
+      "status": "pending",
+      "source": "docx_comment",
+      "created_at": "2025-03-14T09:50:00Z",
+      "created_by": { "actor_name": "system:docx-extractor", "actor_type": "agent", "actor_source": "manifest" }
+    },
+    {
+      "comment_id": "cmt_002",
+      "text": "[COMMENT: Check whether Figure 3 supports the conclusion in paragraph 4.]",
+      "version": "v2",
+      "owner_type": "agent",
+      "owner_name": "agent:claude",
+      "status": "pending",
+      "source": "inline_marker",
+      "created_at": "2025-03-14T09:50:01Z",
+      "created_by": { "actor_name": "system:docx-extractor", "actor_type": "agent", "actor_source": "manifest" }
+    },
+    {
+      "comment_id": "cmt_003",
+      "text": "Add sample size justification.",
+      "version": "v1",
+      "owner_type": "human",
+      "owner_name": "Maria Silva",
+      "status": "resolved",
+      "resolved_at": "2025-03-13T16:40:00Z",
+      "resolved_by": { "actor_name": "Jane Doe", "actor_type": "human", "actor_source": "ui" },
+      "source": "docx_comment",
+      "created_at": "2025-03-11T14:10:00Z",
+      "created_by": { "actor_name": "system:docx-extractor", "actor_type": "agent", "actor_source": "manifest" }
+    }
+  ],
+  "comments_summary": { "pending": 2, "resolved": 1 },
+
+  "risks": [
+    {
+      "risk_id": "rsk_001",
+      "title": "Small sample size in control group",
+      "description": "Control group has 18 participants versus 42 in the treatment group.",
+      "severity": "high",
+      "likelihood": "medium",
+      "owner": "Jane Doe",
+      "status": "mitigating",
+      "trigger": "If reviewers question statistical power",
+      "mitigation": "Add post-hoc power analysis and a sensitivity analysis in supplementary material.",
+      "created_at": "2025-03-12T11:00:00Z",
+      "created_by": { "actor_name": "Jane Doe", "actor_type": "human", "actor_source": "ui" },
+      "updated_at": "2025-03-13T09:30:00Z"
+    },
+    {
+      "risk_id": "rsk_002",
+      "title": "Journal fit uncertainty",
+      "description": "Target journal scope may not align with cognitive performance outcomes.",
+      "severity": "medium",
+      "likelihood": "low",
+      "owner": "John Smith",
+      "status": "open",
+      "created_at": "2025-03-12T11:05:00Z",
+      "created_by": { "actor_name": "John Smith", "actor_type": "human", "actor_source": "ui" },
+      "updated_at": "2025-03-12T11:05:00Z"
+    }
+  ],
+  "risks_summary": { "open": 1, "mitigating": 1, "closed": 0, "high_or_critical_open": 1 },
+
+  "milestones": [
+    {
+      "milestone_id": "ms_001",
+      "title": "Data collection completed",
+      "phase": "short_term_7d",
+      "due_date": "2025-03-15",
+      "status": "done",
+      "completed_at": "2025-03-13T18:00:00Z",
+      "completed_by": { "actor_name": "Jane Doe", "actor_type": "human", "actor_source": "ui" }
+    },
+    {
+      "milestone_id": "ms_002",
+      "title": "First submission",
+      "phase": "submission_ready",
+      "due_date": "2025-03-20",
+      "status": "in_progress",
+      "completed_at": null
+    },
+    {
+      "milestone_id": "ms_003",
+      "title": "Revision ready",
+      "phase": "revision_ready",
+      "due_date": "2025-05-10",
+      "status": "pending"
+    }
+  ],
+  "milestones_summary": { "pending": 1, "in_progress": 1, "done": 1, "missed": 0, "next_due": "2025-03-20" },
+
+  "zotero": {
+    "linked": true,
+    "collection_key": "ABCD1234",
+    "collection_name": "Alpha Study References",
+    "last_sync_at": "2025-03-14T08:00:00Z",
+    "last_sync_status": "success",
+    "bib_file": "References/references_zotero.bib"
+  },
+
+  "exports": [
+    {
+      "export_id": "exp_001",
+      "version": "v2",
+      "path": "Exports/AlphaStudy_v2_submission.zip",
+      "created_at": "2025-03-14T10:21:00Z",
+      "created_by": { "actor_name": "Jane Doe", "actor_type": "human", "actor_source": "ui" },
+      "checksum": "sha256:3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d"
+    }
+  ],
+
+  "activity_summary": {
+    "total_events": 42,
+    "last_event_at": "2025-03-14T10:22:31Z",
+    "actors": { "human": 31, "agent": 11 },
+    "sources": { "ui": 28, "cli": 5, "http": 2, "mcp": 1, "manifest": 6 }
+  },
+
+  "settings_overrides": {
+    "auto_extract_on_upload": true,
+    "default_column_for_new_versions": "Writing",
+    "notify_on_immutable_latest": true
+  }
+}

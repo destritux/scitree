@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scitree"
+version = "0.1.0"
+description = "Local-first scientific project and manuscript Kanban management desktop application and agent automation toolkit."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "sciTree Contributors" }
+]
+dependencies = [
+    "flet>=0.24.0",
+    "python-docx>=1.1.0",
+    "PyMuPDF>=1.24.0",
+    "bibtexparser>=2.0.0b7",
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.29.0",
+    "typer>=0.12.0",
+    "mcp>=1.0.0",
+    "httpx>=0.27.0",
+    "pydantic>=2.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
+
+[project.scripts]
+scitree = "scitree.cli:main"
+scitree-ui = "scitree.ui.app:main"
+scitree-api = "scitree.api.server:main"
+scitree-mcp = "scitree.mcp_server:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["scitree*"]

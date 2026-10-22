@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0",
+  "auto_root": true,
+  "actor": {
+    "actor_name": "agent:claude",
+    "actor_type": "agent",
+    "actor_source": "manifest"
+  },
+  "project": {
+    "name": "Alpha Study",
+    "description": "Longitudinal study on sleep quality and cognitive performance in graduate students.",
+    "column": "Writing",
+    "template": "Empirical Paper",
+    "owner_type": "human",
+    "owner_name": "Jane Doe",
+    "authors": [
+      {
+        "name": "Jane Doe",
+        "role": "corresponding",
+        "email": "jane@example.org",
+        "orcid": "0000-0002-1825-0097"
+      },
+      {
+        "name": "John Smith",
+        "role": "co-author"
+      }
+    ]
+  },
+  "versions": [
+    {
+      "version_id": "v1",
+      "file": "sample_manuscript_v1.docx",
+      "author": "Jane Doe",
+      "changelog": "First full draft with inline comment markers and references.",
+      "state": "draft"
+    }
+  ],
+  "files": [
+    {
+      "kind": "data",
+      "file": "sample_data.csv"
+    },
+    {
+      "kind": "figure",
+      "file": "sample_figure.png"
+    }
+  ],
+  "comments": [
+    {
+      "comment_id": "cmt_101",
+      "text": "Fix introduction citation formatting.",
+      "version": "v1",
+      "owner_type": "agent",
+      "owner_name": "agent:claude"
+    }
+  ],
+  "risks": [
+    {
+      "risk_id": "rsk_101",
+      "title": "Small sample size in control group",
+      "description": "Control group has 18 participants versus 42 in the treatment group.",
+      "severity": "high",
+      "likelihood": "medium",
+      "owner": "Jane Doe",
+      "status": "mitigating",
+      "trigger": "If reviewers question statistical power",
+      "mitigation": "Include post-hoc power analysis and sensitivity analysis."
+    }
+  ],
+  "milestones": [
+    {
+      "milestone_id": "ms_101",
+      "title": "Data collection completed",
+      "phase": "short_term_7d",
+      "due_date": "2026-11-01",
+      "status": "done"
+    },
+    {
+      "milestone_id": "ms_102",
+      "title": "First submission",
+      "phase": "submission_ready",
+      "due_date": "2026-11-20",
+      "status": "in_progress"
+    }
+  ],
+  "zotero_link": {
+    "collection_key": "ABCD1234",
+    "collection_name": "Alpha Study References",
+    "sync_on_apply": false
+  },
+  "activity_notes": [
+    {
+      "note": "Automated manifest ingestion completed by agent workflow."
+    }
+  ],
+  "export": {
+    "version": "v1"
+  }
+}

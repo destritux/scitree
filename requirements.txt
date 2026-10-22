@@ -1,0 +1,11 @@
+flet>=0.24.0
+python-docx>=1.1.0
+PyMuPDF>=1.24.0
+bibtexparser>=2.0.0b7
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+typer>=0.12.0
+mcp>=1.0.0
+httpx>=0.27.0
+pydantic>=2.7.0
+pytest>=8.0.0
